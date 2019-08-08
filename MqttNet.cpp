@@ -144,9 +144,6 @@ void MqttNet::onMqttFileMessage(String action, char* payload, AsyncMqttClientMes
     return;
   }
 
-  Serial.print("=== file action=");
-  Serial.println(action);
-
   if (action.equals("reset")) {
     newFileName = "";
     newFileMD5 = "";
@@ -250,8 +247,13 @@ void MqttNet::onMqttFileMessage(String action, char* payload, AsyncMqttClientMes
           publish("net/sync/state", 0, 0, "ok");
           return;
         } else {
-          publish("net/sync/state", 0, 0, String(fileWriter.GetPosition()));
-          return;
+          if (fileWriter.Open()) {
+            publish("net/sync/state", 0, 0, String(fileWriter.GetPosition()));
+            return;
+          } else {
+            publish("net/sync/state", 0, 0, "error: open failed");
+            return;
+          }
         }
       } else {
         publish("net/sync/state", 0, 0, "error: begin failed");
