@@ -65,7 +65,6 @@ class MqttNet {
   void onMqttFileMessage(String action, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
   void onMqttString(String topic, String payload, bool retain);
   void connectToMqtt(bool cleanSession=true);
-  void sendFirmwarePosition();
   void dequeueHandler();
   void publishMetadata();
   void publishStats();
