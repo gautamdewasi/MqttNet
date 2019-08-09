@@ -117,9 +117,14 @@ void MqttNet::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessagePr
   Serial.println(total, DEC);
 
   if (sub_topic.startsWith("net/sync/")) {
-    String action = sub_topic.substring(9);
-    onMqttFileMessage(action, payload, properties, len, index, total);
-    return;
+    if (allowRemoteSync) {
+      String action = sub_topic.substring(9);
+      onMqttFileMessage(action, payload, properties, len, index, total);
+      return;
+    } else {
+      publish("net/sync/state", 0, 0, "disabled");
+      return;
+    }
   }
 
   if (message_callback) {

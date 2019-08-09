@@ -71,8 +71,7 @@ class MqttNet {
 
  public:
   MqttNet();
-  bool allowFileUpdates = false;
-  bool allowFirmwareUpdates = false;
+  bool allowRemoteSync = false;
   mqttnet_connect_callback_t connect_callback;
   mqttnet_disconnect_callback_t disconnect_callback;
   mqttnet_file_callback_t file_callback;
