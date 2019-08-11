@@ -76,6 +76,7 @@ bool MqttNet::isConnected() {
 void MqttNet::onMqttConnect(bool sessionPresent) {
   Serial.println("MqttNet: mqtt connected");
   publish("net/connected", 0, 1, "1");
+  subscribe("net/ping", 0);
   subscribe("net/sync/reset", 0);
   subscribe("net/sync/name", 0);
   subscribe("net/sync/md5", 0);
@@ -275,6 +276,9 @@ void MqttNet::onMqttString(String topic, String payload, bool retain) {
   if (topic.equals("net/restart")) {
     _restartRequiredForNetwork = true;
     return;
+  }
+  if (topic.equals("net/ping")) {
+    publish("net/pong", 0, 0, payload);
   }
   if (string_callback) {
     string_callback(topic, payload, retain);
