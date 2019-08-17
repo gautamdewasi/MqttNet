@@ -35,6 +35,7 @@ class MqttNet {
   Ticker mqttReconnectTimer;
   Ticker dequeueTicker;
   Ticker statsTicker;
+  Ticker watchdogTicker;
   WiFiEventHandler wifiConnectHandler;
   WiFiEventHandler wifiDisconnectHandler;
   FirmwareWriter firmwareWriter;
@@ -52,9 +53,12 @@ class MqttNet {
   char will_topic[64];
   bool _restartRequiredForNetwork = false;
   bool _restartRequiredForFirmware = false;
+  bool _restartRequiredForWatchdog = false;
   int _maxSubscribeQueue = 20;
   int _maxPublishQueue = 20;
   int _statsInterval = 60000;
+  time_t _watchdogLastOk = 0;
+  long _watchdogRestartTimeout = 0;
   std::queue<MqttNetMessage> pubqueue;
   std::queue<MqttNetSubscribe> subqueue;
   void onWifiConnect();
@@ -68,6 +72,7 @@ class MqttNet {
   void dequeueHandler();
   void publishMetadata();
   void publishStats();
+  void watchdogHandler();
 
  public:
   MqttNet();
@@ -83,6 +88,7 @@ class MqttNet {
   bool restartRequired();
   bool restartRequiredForFirmware();
   void setConfig(const char *host, uint16_t port, bool tls, const char *username, const char *password, const char *prefix);
+  void setWatchdog(long timeout);
   uint16_t subscribe(String topic, uint8_t qos);
 };
 

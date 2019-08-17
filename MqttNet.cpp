@@ -11,6 +11,7 @@ MqttNet::MqttNet() {
 }
 
 void MqttNet::begin() {
+  watchdogTicker.attach_ms(1000, std::bind(&MqttNet::watchdogHandler, this));
   dequeueTicker.attach_ms(125, std::bind(&MqttNet::dequeueHandler, this));
   statsTicker.attach_ms(_statsInterval, std::bind(&MqttNet::publishStats, this));
   if (WiFi.isConnected()) {
@@ -355,6 +356,13 @@ void MqttNet::setConfig(const char *host, uint16_t port, bool tls, const char *u
   mqtt_prefix = prefix;
 }
 
+void MqttNet::setWatchdog(long timeout) {
+  _watchdogRestartTimeout = timeout;
+  if (timeout <= 0) {
+    _restartRequiredForWatchdog = false;
+  }
+}
+
 uint16_t MqttNet::subscribe(String topic, uint8_t qos) {
   if (subqueue.size() > _maxSubscribeQueue) {
     return 0;
@@ -366,4 +374,20 @@ uint16_t MqttNet::subscribe(String topic, uint8_t qos) {
   sub.topic = full_topic;
   subqueue.push(sub);
   return 1;
+}
+
+void MqttNet::watchdogHandler() {
+  if (WiFi.isConnected() && mqttClient->connected()) {
+    _watchdogLastOk = millis();
+  }
+  if (_watchdogRestartTimeout > 0) {
+    if (millis() - _watchdogLastOk > _watchdogRestartTimeout) {
+      if (!_restartRequiredForWatchdog) {
+        Serial.println("MqttNet: network watchdog requesting restart");
+        _restartRequiredForWatchdog = true;
+      }
+    } else {
+      _restartRequiredForWatchdog = false;
+    }
+  }
 }
