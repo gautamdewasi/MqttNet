@@ -59,6 +59,8 @@ class MqttNet {
   int _statsInterval = 60000;
   time_t _watchdogLastOk = 0;
   long _watchdogRestartTimeout = 0;
+  int _metric_wifi_reconnections = -1;
+  int _metric_mqtt_reconnections = -1;
   std::queue<MqttNetMessage> pubqueue;
   std::queue<MqttNetSubscribe> subqueue;
   void onWifiConnect();

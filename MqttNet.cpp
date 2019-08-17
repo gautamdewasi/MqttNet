@@ -75,6 +75,7 @@ bool MqttNet::isConnected() {
 }
 
 void MqttNet::onMqttConnect(bool sessionPresent) {
+  _metric_mqtt_reconnections++;
   Serial.println("MqttNet: mqtt connected");
   publish("net/connected", 0, 1, "1");
   subscribe("net/ping", 0);
@@ -287,6 +288,7 @@ void MqttNet::onMqttString(String topic, String payload, bool retain) {
 }
 
 void MqttNet::onWifiConnect() {
+  _metric_wifi_reconnections++;
   Serial.println("MqttNet: wifi connected");
 }
 
@@ -336,11 +338,13 @@ void MqttNet::publishStats() {
     publish("net/millis", 0, 1, String(millis()));
     publish("net/esp/free_heap", 0, 1, String(ESP.getFreeHeap()));
     publish("net/esp/free_cont_stack", 0, 1, String(ESP.getFreeContStack()));
+    publish("net/wifi_reconnections", 0, 1, String(_metric_wifi_reconnections));
+    publish("net/mqtt_reconnections", 0, 1, String(_metric_mqtt_reconnections));
   }
 }
 
 bool MqttNet::restartRequired() {
-  return _restartRequiredForNetwork || _restartRequiredForFirmware;
+  return _restartRequiredForNetwork || _restartRequiredForFirmware || _restartRequiredForWatchdog;
 }
 
 bool MqttNet::restartRequiredForFirmware() {
