@@ -1,11 +1,18 @@
+/***************************************************THIS FILE IS USED TO DEFINE MEMBERS OF CLASS FileWriter****************************************************/
+
+
+//...............................including  header file FileWriter.hpp which is user define header  
 #include "FileWriter.hpp"
 
+// FileWriter is a class which is define in FileWriter.hpp header file
+// FileWriter() is a member function of class FileWriter , which is define outside the class 
 FileWriter::FileWriter() {
   strncpy(_filename, "", sizeof(_filename));
   strncpy(_md5, "", sizeof(_md5));
   _size = 0;
 }
 
+// again defining a member function called Abort() of class FileWriter
 void FileWriter::Abort() {
   if (file_handle) {
     file_handle.close();
@@ -18,6 +25,7 @@ void FileWriter::Abort() {
   active = false;
 }
 
+// defining a member function Begin() of class FileWriter, which is returning boolean value
 bool FileWriter::Begin(const char *filename, const char *md5, size_t size) {
   if (active) {
     Serial.println("FileWriter: begin(): aborting existing task first");
@@ -30,6 +38,7 @@ bool FileWriter::Begin(const char *filename, const char *md5, size_t size) {
   return true;
 }
 
+//defining a member function Add() of class FileWriter
 bool FileWriter::Add(uint8_t *data, unsigned int len) {
   if (file_open) {
     received_size += len;
@@ -39,6 +48,7 @@ bool FileWriter::Add(uint8_t *data, unsigned int len) {
   }
 }
 
+//defining a member function Add() of class FileWriter
 bool FileWriter::Add(uint8_t *data, unsigned int len, unsigned int pos) {
   if (file_open) {
     if (file_handle.seek(pos, SeekSet)) {
@@ -52,6 +62,7 @@ bool FileWriter::Add(uint8_t *data, unsigned int len, unsigned int pos) {
   }
 }
 
+//defining a member function Commit() of class FileWriter   
 bool FileWriter::Commit() {
   if (file_handle) {
     file_handle.close();
@@ -97,6 +108,7 @@ bool FileWriter::Commit() {
   }
 }
 
+//defining a member function Open() of class FileWriter    
 bool FileWriter::Open() {
   file_handle = SPIFFS.open(tmp_filename, "w");
   if (file_handle) {
@@ -112,14 +124,17 @@ bool FileWriter::Open() {
   }
 }
 
+//defining a member function GetPosition() of class FileWriter 
 int FileWriter::GetPosition() {
   return received_size;
 }
 
+//defining a member function Running() of class FileWriter  
 bool FileWriter::Running() {
   return active;
 }
 
+//defining a member function UpToDate() of class FileWriter
 bool FileWriter::UpToDate() {
   MD5Builder md5;
   File f = SPIFFS.open(_filename, "r");
@@ -145,6 +160,7 @@ bool FileWriter::UpToDate() {
   }
 }
 
+//defining a member function parse_md5_stream() of class FileWriter
 void FileWriter::parse_md5_stream(MD5Builder *md5, Stream *stream) {
   md5->begin();
   while (stream->available()) {
